@@ -7,4 +7,3 @@ st.set_page_config(
 st.markdown("Hello World")
 
 st.title("Captsone Project")
-    
