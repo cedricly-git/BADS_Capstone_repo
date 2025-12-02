@@ -10,6 +10,10 @@ from pathlib import Path
 import warnings
 warnings.filterwarnings('ignore')
 
+MODEL_NAME = "CatBoost Regression"
+MODEL_R2 = 0.3652
+MODEL_RMSE = 684.56
+
 # Page configuration
 st.set_page_config(
     page_title="Uber Eats Demand Forecast",
@@ -27,15 +31,16 @@ Since searches are highly correlated with actual orders, these forecasts help pr
 # Sidebar for information
 with st.sidebar:
     st.header("📊 About")
-    st.markdown("""
-    **Model**: CatBoost Regression  
-    **Performance**: R² = 0.3652, RMSE = 684.56  
-    **Features**: Weather, temporal patterns, and historical trends
-    
-    **Data Source**: 
-    - Weather: Open-Meteo API (Switzerland, population-weighted)
-    - Historical: Uber Eats search data
-    """)
+    st.markdown(
+        f"""**Model**: {MODEL_NAME}  
+**Performance**: R² = {MODEL_R2:.4f}, RMSE = {MODEL_RMSE:.2f}  
+**Features**: Weather, temporal patterns, and historical trends
+
+**Data Source**:  
+- Weather: Open-Meteo API (Switzerland, population-weighted)  
+- Historical: Uber Eats search data
+"""
+    )
     
     st.header("🔍 Key Insights")
     st.markdown("""
@@ -450,39 +455,203 @@ def make_predictions(model, forecast_features, full_df, historical_len):
     return predictions
 
 def categorize_demand(searches, historical_stats):
-    """Categorize demand level based on historical percentiles"""
+    """
+    Categorize demand level based on historical percentiles
+    and provide base recommendations (demand-focused) for
+    delivery platforms and restaurants.
+
+    Weather- and holiday-specific refinements are added later
+    in the display logic.
+    """
     if searches >= historical_stats['p90']:
+        rec_platform_base = (
+            "Demand is expected to be **much higher than on a normal day**. "
+            "Plan significantly more active riders (e.g. +20–30% vs a "
+            "typical day), ensure enough budget for boosts/surges, and "
+            "closely monitor delivery times and service quality."
+        )
+        rec_restaurant_base = (
+            "Prepare for a **very busy service** compared with a typical day. "
+            "Add extra kitchen staff for peak periods, simplify the menu if "
+            "needed, and pre-prepare your best-selling dishes to avoid "
+            "bottlenecks and stock-outs."
+        )
         return {
-            'level': 'CRITICAL',
-            'priority': 'Critical',
-            'recommendation': 'Very high demand expected. Strongly encourage driver availability and ensure full restaurant capacity.',
-            'color': 'red',
-            'icon': '🔴'
+            "level": "CRITICAL",
+            "priority": "Critical",
+            "rec_platform_base": rec_platform_base,
+            "rec_restaurant_base": rec_restaurant_base,
+            "color": "red",
+            "icon": "🔴",
         }
-    elif searches >= historical_stats['p75']:
+
+    elif searches >= historical_stats["p75"]:
+        rec_platform_base = (
+            "Demand should be **above average**. Schedule a few additional "
+            "riders (e.g. +10–15%), and consider moderate incentives during "
+            "the main peak periods."
+        )
+        rec_restaurant_base = (
+            "Expect a **busy but manageable** service. Slightly increase "
+            "kitchen staffing and make sure you have enough stock of your "
+            "core dishes so you don’t run out at peak time."
+        )
         return {
-            'level': 'HIGH',
-            'priority': 'High',
-            'recommendation': 'Elevated demand. Consider increasing driver incentives and restaurant preparation.',
-            'color': 'orange',
-            'icon': '🟠'
+            "level": "HIGH",
+            "priority": "High",
+            "rec_platform_base": rec_platform_base,
+            "rec_restaurant_base": rec_restaurant_base,
+            "color": "orange",
+            "icon": "🟠",
         }
-    elif searches <= historical_stats['p25']:
+
+    elif searches <= historical_stats["p25"]:
+        rec_platform_base = (
+            "Demand is likely to be **below normal**. No need to push for "
+            "maximum volume; you can keep incentives low and focus on "
+            "targeted marketing or retention campaigns."
+        )
+        rec_restaurant_base = (
+            "Expect a **quieter day** than usual. Avoid over-staffing and be "
+            "careful with fresh-product orders to keep waste under control. "
+            "If you want more volume, use small promotions rather than large "
+            "stock increases."
+        )
         return {
-            'level': 'LOW',
-            'priority': 'Low',
-            'recommendation': 'Below average demand. Consider promotional campaigns or reduced capacity.',
-            'color': 'blue',
-            'icon': '🔵'
+            "level": "LOW",
+            "priority": "Low",
+            "rec_platform_base": rec_platform_base,
+            "rec_restaurant_base": rec_restaurant_base,
+            "color": "blue",
+            "icon": "🔵",
         }
+
     else:
+        rec_platform_base = (
+            "Demand is expected to be **close to a typical day**. Keep your "
+            "usual number of active riders and standard incentive schemes, "
+            "but monitor the forecast in case local events change the picture."
+        )
+        rec_restaurant_base = (
+            "Plan for a **normal service**. Maintain your standard staffing "
+            "and stock levels and treat this as a baseline week to compare "
+            "with future high- or low-demand periods."
+        )
         return {
-            'level': 'NORMAL',
-            'priority': 'Normal',
-            'recommendation': 'Standard operations sufficient.',
-            'color': 'green',
-            'icon': '🟢'
+            "level": "NORMAL",
+            "priority": "Normal",
+            "rec_platform_base": rec_platform_base,
+            "rec_restaurant_base": rec_restaurant_base,
+            "color": "green",
+            "icon": "🟢",
         }
+
+def build_weather_adjustment_paragraphs(row):
+    """
+    Build additional paragraphs for delivery platforms and restaurants
+    that take into account weather (and, if available, holidays).
+
+    Returns:
+        (platform_weather_text, restaurant_weather_text)
+    """
+    temp_max = row["Temp_Max"]
+    temp_min = row["Temp_Min"]
+    precip = row["Precipitation"]
+    avg_temp = (temp_max + temp_min) / 2
+
+    is_holiday = False
+    if hasattr(row, "index") and "is_holiday" in row.index:
+        try:
+            is_holiday = bool(row["is_holiday"])
+        except Exception:
+            is_holiday = False
+
+    platform_parts = []
+    restaurant_parts = []
+
+    if precip >= 5 and avg_temp <= 10:
+        platform_parts.append(
+            "Because the day is **cold and rainy**, deliveries are likely to "
+            "take longer than on a dry day. Plan for slightly longer ETAs and "
+            "consider concentrating riders in dense urban areas."
+        )
+        restaurant_parts.append(
+            "Cold and rainy conditions usually mean fewer guests on the "
+            "terrace and more people ordering from home. You can rely more "
+            "on delivery and indoor seating and focus on warm, comforting dishes."
+        )
+
+    elif precip >= 5 and avg_temp > 10:
+        platform_parts.append(
+            "With **rainy but relatively mild** weather, people are less "
+            "inclined to go out to eat, which tends to support delivery "
+            "demand, especially in the evening."
+        )
+        restaurant_parts.append(
+            "Rain will reduce terrace usage, so expect more indoor and "
+            "delivery orders. Make sure your indoor capacity and packaging "
+            "for delivery orders are well prepared."
+        )
+
+    elif precip < 1 and avg_temp >= 25:
+        platform_parts.append(
+            "On **very warm, dry** days, people may spend more time outside "
+            "during the day and order more in the late evening when it is "
+            "cooler. Expect demand to be more concentrated in the evening."
+        )
+        restaurant_parts.append(
+            "Hot weather can mean fewer people at lunch but more activity in "
+            "the evening. For stocks, expect more **cold and refreshing dishes** "
+            "(salads, cold drinks, ice cream) and relatively fewer heavy hot dishes."
+        )
+
+    elif precip < 1 and 10 < avg_temp < 25:
+        platform_parts.append(
+            "The weather is **mild and dry**, which is fairly neutral for "
+            "delivery. Demand will be driven more by day of week and events "
+            "than by weather alone."
+        )
+        restaurant_parts.append(
+            "Mild and dry conditions mean terrace usage is attractive but not "
+            "extreme. Stocks can follow normal patterns without strong weather-driven shifts."
+        )
+
+    elif avg_temp <= 10 and precip < 5:
+        platform_parts.append(
+            "It will be **cold**, even if not very rainy. People are more "
+            "likely to stay at home, which can support delivery demand, "
+            "especially in the evening."
+        )
+        restaurant_parts.append(
+            "Cold weather reduces terrace usage and increases the appeal of "
+            "hot, comforting dishes. Make sure you have enough ingredients "
+            "for your main warm meals."
+        )
+
+    else:
+        platform_parts.append(
+            "Weather conditions are relatively **neutral**. Use the forecast "
+            "mainly as a guide vs the historical average and adjust based on "
+            "local events or promotions."
+        )
+        restaurant_parts.append(
+            "From a stock and staffing point of view, the weather does not "
+            "require strong adjustments beyond what the demand level already suggests."
+        )
+
+    if is_holiday:
+        platform_parts.append(
+            "Since this is a **public holiday**, traffic patterns can be "
+            "irregular and certain areas may be busier. Drivers in cars or "
+            "scooters should anticipate possible traffic around shopping and "
+            "leisure areas."
+        )
+
+    platform_text = " ".join(platform_parts)
+    restaurant_text = " ".join(restaurant_parts)
+
+    return platform_text, restaurant_text
+
 
 # Main app logic
 def main():
@@ -573,13 +742,34 @@ def main():
         assessment = "🟢 **Normal Week** - Standard operations"
         assessment_color = "green"
     
-    st.info(f"""
-    **Week Assessment**: {assessment}
-    
-    This week's average demand ({int(week_avg):,} searches/day) is **{abs(week_vs_historical):.1f}%** 
-    {'above' if week_vs_historical > 0 else 'below'} the historical average ({int(historical_stats['mean']):,} searches/day).
-    """)
-    
+        st.info(
+        f"**Week Assessment**: {assessment}\n\n"
+        f"This week's average demand ({int(week_avg):,} searches/day) is "
+        f"**{abs(week_vs_historical):.1f}%** "
+        f"{'above' if week_vs_historical > 0 else 'below'} the historical average "
+        f"({int(historical_stats['mean']):,} searches/day)."
+    )
+
+
+    st.subheader("🤔 How reliable is this forecast?")
+    model_uncertainty_text = (
+        f"Our forecasting model (currently **{MODEL_NAME}**) explains about "
+        f"**{MODEL_R2 * 100:.1f}%** of the day-to-day variation in historical "
+        "Uber Eats search volume (R²).  \n"
+        "That is decent for human behaviour data, but it also means there is "
+        "**still a lot of unexplained variability**.\n\n"
+        "- Use the forecasts as **directional signals** (higher or lower than usual), "
+        "not as exact numbers.  \n"
+        "- Focus on the **percentage differences** vs the historical average and the "
+        "**demand categories** (LOW / NORMAL / HIGH / CRITICAL) when planning staffing "
+        "and stock.  \n"
+        f"- An RMSE of about **{MODEL_RMSE:,.0f} searches** means that on a single day, "
+        "the true value can easily be a few hundred searches above or below the forecast.  \n"
+        "- Keep a **safety buffer** in rider and kitchen capacity on HIGH and CRITICAL days, "
+        "and avoid cutting too aggressively on LOW days."
+    )
+    st.markdown(model_uncertainty_text)
+
     # Display results
     st.header("📈 7-Day Forecast")
     
@@ -655,7 +845,7 @@ def main():
     
     # Use st.table() with fallback to HTML table if Arrow conversion issues persist
     try:
-        st.table(display_df)
+        st.table(display_df.style.hide_index())
     except Exception:
         # Ultimate fallback: display as markdown table
         st.markdown(display_df.to_html(escape=False, index=False), unsafe_allow_html=True)
@@ -706,50 +896,82 @@ def main():
     
     cols = st.columns(3)
     for idx, (col, (_, day_row)) in enumerate(zip(cols, results_sorted.head(3).iterrows())):
-        category = day_row['Demand_Category']
+        category = day_row["Demand_Category"]
+        platform_weather, restaurant_weather = build_weather_adjustment_paragraphs(day_row)
+        
         with col:
-            st.markdown(f"""
-            **{category['icon']} {day_row['Day'].strftime('%A, %b %d')}**
-            
-            **Expected**: {int(day_row['Predicted_Searches']):,} searches  
-            **Level**: {category['level']} ({category['priority']} Priority)
-            
-            **Recommendation**:  
-            {category['recommendation']}
-            
-            *Weather: {day_row['Temp_Max']:.1f}°C / {day_row['Temp_Min']:.1f}°C, {day_row['Precipitation']:.1f}mm*
-            """)
+            st.markdown(
+                f"**{category['icon']} {day_row['Day'].strftime('%A, %b %d')}**"
+            )
+            st.markdown(
+                f"**Expected**: {int(day_row['Predicted_Searches']):,} searches  "
+            )
+            st.markdown(
+                f"**Level**: {category['level']} ({category['priority']} Priority)"
+            )
+            st.markdown("**🚚 Platform (summary):**")
+            st.markdown(category["rec_platform_base"])
+            st.markdown("**🍽 Restaurant (summary):**")
+            st.markdown(category["rec_restaurant_base"])
+            st.markdown(
+                f"*Weather: {day_row['Temp_Max']:.1f}°C / {day_row['Temp_Min']:.1f}°C, "
+                f"{day_row['Precipitation']:.1f}mm*"
+            )
     
     # Detailed day-by-day recommendations
     st.subheader("📅 Complete Week Breakdown")
     
     for _, day_row in results_df.iterrows():
-        category = day_row['Demand_Category']
+        category = day_row["Demand_Category"]
         percentile = None
-        if day_row['Predicted_Searches'] >= historical_stats['p90']:
+        if day_row["Predicted_Searches"] >= historical_stats["p90"]:
             percentile = "90th+"
-        elif day_row['Predicted_Searches'] >= historical_stats['p75']:
+        elif day_row["Predicted_Searches"] >= historical_stats["p75"]:
             percentile = "75th-90th"
-        elif day_row['Predicted_Searches'] <= historical_stats['p25']:
+        elif day_row["Predicted_Searches"] <= historical_stats["p25"]:
             percentile = "25th or below"
         else:
             percentile = "25th-75th"
-        
-        with st.expander(f"{category['icon']} {day_row['Day'].strftime('%A, %B %d')} - {category['level']} Demand ({int(day_row['Predicted_Searches']):,} searches)"):
+    
+        with st.expander(
+            f"{category['icon']} {day_row['Day'].strftime('%A, %B %d')} - "
+            f"{category['level']} Demand ({int(day_row['Predicted_Searches']):,} searches)"
+        ):
             col1, col2 = st.columns(2)
+    
             with col1:
-                st.metric("Expected Searches", f"{int(day_row['Predicted_Searches']):,}", 
-                         delta=f"{percentile} percentile")
-                st.metric("vs Historical Avg", 
-                         f"{((day_row['Predicted_Searches'] - historical_stats['mean']) / historical_stats['mean'] * 100):+.1f}%",
-                         delta=f"{int(day_row['Predicted_Searches'] - historical_stats['mean']):+,}")
+                st.metric(
+                    "Expected Searches",
+                    f"{int(day_row['Predicted_Searches']):,}",
+                    delta=f"{percentile} percentile",
+                )
+                st.metric(
+                    "vs Historical Avg",
+                    f"{((day_row['Predicted_Searches'] - historical_stats['mean']) / historical_stats['mean'] * 100):+.1f}%",
+                    delta=f"{int(day_row['Predicted_Searches'] - historical_stats['mean']):+,}",
+                )
+    
             with col2:
                 st.write("**Weather Conditions:**")
                 st.write(f"- Max Temp: {day_row['Temp_Max']:.1f}°C")
                 st.write(f"- Min Temp: {day_row['Temp_Min']:.1f}°C")
                 st.write(f"- Precipitation: {day_row['Precipitation']:.1f}mm")
+    
             
-            st.write(f"**💡 Recommendation:** {category['recommendation']}")
+            platform_weather, restaurant_weather = build_weather_adjustment_paragraphs(day_row)
+    
+            st.markdown("**🚚 Recommendation for delivery platforms:**")
+            st.markdown(
+                category["rec_platform_base"] + "\n\n" + platform_weather
+            )
+    
+            st.markdown("**🍽 Recommendation for restaurants:**")
+            st.markdown(
+                category["rec_restaurant_base"] + "\n\n" + restaurant_weather
+            )
+
+
+
     
     # Download button
     st.download_button(
