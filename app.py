@@ -333,6 +333,16 @@ def show_landing_page():
     </div>
     """, unsafe_allow_html=True)
     
+    # University attribution
+    st.markdown("""
+    <div style="text-align: center; margin-top: -0.5rem; margin-bottom: 1.5rem;">
+        <div style="display: inline-flex; align-items: center; gap: 160px; background: rgba(255,255,255,0.95); padding: 10px 40px; border-radius: 30px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/7/73/University_of_St._Gallen_logo_english.png" alt="University of St. Gallen" style="height: 45px; width: auto;">
+            <span style="color: #1e293b; font-size: 0.95rem; font-weight: 500;">A student project from the University of St.Gallen</span>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    
     # Features showcase
     st.markdown("<br>", unsafe_allow_html=True)
     
@@ -463,6 +473,13 @@ def show_main_dashboard():
 # Sidebar for information (always visible when on main dashboard)
 def show_sidebar():
     with st.sidebar:
+        # University of St. Gallen logo
+        st.markdown("""
+        <div style="text-align: center; margin-bottom: 1rem; padding: 0.5rem;">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/7/73/University_of_St._Gallen_logo_english.png" alt="University of St. Gallen" style="height: 40px; width: auto;">
+        </div>
+        """, unsafe_allow_html=True)
+        
         st.header("👤 Your Role")
         # Allow changing role from sidebar
         role_options = [ROLE_RESTAURANT, ROLE_PLATFORM, ROLE_DRIVER]
@@ -484,6 +501,14 @@ def show_sidebar():
         st.markdown("""**Data**: Switzerland  
 **Weather**: Open-Meteo API  
 **Updated**: Weekly forecasts""")
+        
+        st.markdown("---")
+        
+        st.header("Settings")
+        dark_mode = st.toggle("Dark Mode", value=st.session_state.dark_mode, key="dark_mode_toggle")
+        if dark_mode != st.session_state.dark_mode:
+            st.session_state.dark_mode = dark_mode
+            st.rerun()
         
         st.markdown("---")
         if st.button("Back to Welcome Screen"):
