@@ -1,3 +1,88 @@
+"""
+================================================================================
+UBER EATS DEMAND FORECAST APPLICATION
+================================================================================
+A Streamlit web application for predicting Uber Eats demand in Switzerland
+using machine learning and weather data.
+
+University of St. Gallen - Student Project
+
+================================================================================
+TABLE OF CONTENTS
+================================================================================
+
+1. IMPORTS
+
+2. CONSTANTS
+   - Role identifiers
+   - Demand color scheme
+   - Swiss cities configuration
+
+3. HELPER FUNCTIONS
+   - calc_pct_vs_avg()
+   - get_demand_category()
+   - get_earning_label()
+
+4. PAGE CONFIGURATION
+   - Streamlit page config
+   - inject_custom_css()
+
+5. SESSION STATE INITIALIZATION
+
+6. LANDING PAGE
+   - show_landing_page()
+
+7. MAIN DASHBOARD
+   - show_main_dashboard()
+
+8. DATA LOADING
+   - load_historical_data()
+   - get_last_search_values()
+
+9. WEATHER DATA
+   - fetch_historical_weather()
+   - get_weather_forecast()
+
+10. FEATURE ENGINEERING
+    - create_weather_features()
+    - prepare_forecast_features()
+
+11. MODEL PREDICTION
+    - make_predictions()
+
+12. MAIN APPLICATION LOGIC
+    - main()
+    - Quick Actions Section
+      - Today's Focus (Restaurant)
+      - Operations Dashboard (Platform)
+      - Should I Work Today? (Driver)
+
+13. TAB 1: FORECAST OVERVIEW
+    - 7-Day Forecast Cards
+    - Daily Earning Potential Chart
+    - Daily Breakdown
+
+14. TAB 2: PLANNING TOOLS
+    - Inventory Planner (Restaurant)
+    - Weather Preparation Guide (Driver)
+    - Rider Allocation Calculator (Platform)
+
+15. TAB 3: STAFF / SCHEDULE / COMMUNICATIONS
+    - Staff Scheduler (Restaurant)
+    - Schedule Planner (Driver)
+    - Driver Communications (Platform)
+
+16. TAB 4: MARKETING TOOLS (Restaurant only)
+    - Dynamic Pricing Engine
+    - Ad Budget Optimizer
+    - Promotion Planner
+
+17. FOOTER SECTION
+
+================================================================================
+"""
+
+# ============== 1. IMPORTS ==============
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -11,7 +96,7 @@ from io import StringIO
 import warnings
 warnings.filterwarnings('ignore')
 
-# ============== CONSTANTS ==============
+# ============== 2. CONSTANTS ==============
 
 # Role identifiers
 ROLE_RESTAURANT = "🍽️ Restaurant"
@@ -40,7 +125,7 @@ SWISS_CITIES = {
     "Biel": {"lat": 47.1404, "lon": 7.2471, "pop": 56896}
 }
 
-# ============== HELPER FUNCTIONS ==============
+# ============== 3. HELPER FUNCTIONS ==============
 
 def calc_pct_vs_avg(value, mean):
     """Calculate percentage difference from mean"""
@@ -102,19 +187,27 @@ def render_day_card(day, date_str, label, weather_icon, temp_max, temp_min, bg_c
     </div>
     """
 
-# ============== PAGE CONFIG ==============
+# ============== 4. PAGE CONFIGURATION ==============
 
 # Page configuration
 st.set_page_config(
     page_title="Uber Eats Demand Forecast",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed"
 )
 
 # Custom CSS for enhanced styling
 def inject_custom_css():
     st.markdown("""
     <style>
+    /* Hide sidebar completely */
+    [data-testid="stSidebar"] {
+        display: none;
+    }
+    [data-testid="stSidebarCollapsedControl"] {
+        display: none;
+    }
+    
     /* Main app styling */
     .main-header {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -307,14 +400,13 @@ def inject_custom_css():
     </style>
     """, unsafe_allow_html=True)
 
-# Initialize session state for user type selection
+# ============== 5. SESSION STATE INITIALIZATION ==============
 if 'user_type_selected' not in st.session_state:
     st.session_state.user_type_selected = False
 if 'user_type' not in st.session_state:
     st.session_state.user_type = None
-if 'dark_mode' not in st.session_state:
-    st.session_state.dark_mode = False
 
+# ============== 6. LANDING PAGE ==============
 def show_landing_page():
     """Display the enhanced welcome/landing page with role selection"""
     inject_custom_css()
@@ -372,6 +464,7 @@ def show_landing_page():
             <div style="font-size: 2.5rem;">⚡</div>
             <h4>Actionable Tools</h4>
             <p style="color: #64748b; font-size: 0.9rem;">Planning calculators, communication tools & more</p>
+            <br>
         </div>
         """, unsafe_allow_html=True)
     
@@ -394,6 +487,7 @@ def show_landing_page():
             <h3>Restaurant Owner</h3>
             <p>Optimize inventory, staffing, and prep schedules</p>
             <br>
+            <br>
             <div style="color: #667eea; font-weight: 600;">Features:</div>
             <p style="font-size: 0.85rem;">✓ Inventory planner<br>✓ Staff scheduler<br>✓ Demand insights</p>
         </div>
@@ -409,6 +503,7 @@ def show_landing_page():
             <div class="icon">🚚</div>
             <h3>Delivery Platform</h3>
             <p>Plan rider allocation and driver communications</p>
+            <br>
             <br>
             <div style="color: #667eea; font-weight: 600;">Features:</div>
             <p style="font-size: 0.85rem;">✓ Rider calculator<br>✓ Driver messaging<br>✓ Fleet planning</p>
@@ -434,12 +529,26 @@ def show_landing_page():
             st.session_state.user_type = ROLE_DRIVER
             st.session_state.user_type_selected = True
             st.rerun()
+    
+    # About section at the bottom
+    st.markdown("<br><br>", unsafe_allow_html=True)
+    st.markdown("""
+    <div style="background: #f1f5f9; padding: 1.5rem 2rem; border-radius: 12px; max-width: 600px; margin: 0 auto; text-align: center;">
+        <h4 style="color: #475569; margin-bottom: 0.8rem; font-size: 1rem;">About This Project</h4>
+        <p style="color: #64748b; font-size: 0.9rem; margin: 0; line-height: 1.6;">
+            <strong>Data:</strong> Switzerland &nbsp;•&nbsp; 
+            <strong>Weather:</strong> Open-Meteo API &nbsp;•&nbsp; 
+            <strong>Updated:</strong> Weekly forecasts
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
 
+# ============== 7. MAIN DASHBOARD ==============
 def show_main_dashboard():
-    """Display the main dashboard"""
+    """Display the main dashboard header with logo and role switcher"""
     inject_custom_css()
     
-    # Enhanced header with gradient
+    # Header configuration
     if st.session_state.user_type == ROLE_RESTAURANT:
         role_emoji = "🍽️"
         role_name = "Restaurant"
@@ -450,78 +559,54 @@ def show_main_dashboard():
         role_emoji = "🚴"
         role_name = "Delivery Driver"
     
-    st.markdown(f"""
-    <div class="main-header">
-        <h1>Uber Eats Demand Forecast</h1>
-        <p>{role_emoji} Viewing as <strong>{role_name}</strong> • Week of {datetime.now().strftime('%B %d, %Y')}</p>
-    </div>
-    """, unsafe_allow_html=True)
+    # Header row with logo and role switcher
+    header_col1, header_col2, header_col3 = st.columns([1, 4, 1])
     
-    # Apply dark mode if enabled
-    if st.session_state.dark_mode:
+    with header_col1:
         st.markdown("""
-            <style>
-                .stApp { background-color: #0f172a; color: #e2e8f0; }
-                .stMarkdown, .stText, p, span, label, h1, h2, h3, h4, h5, h6 { color: #e2e8f0 !important; }
-                .stMetric label, .stMetric [data-testid="stMetricValue"] { color: #e2e8f0 !important; }
-                [data-testid="stSidebar"] { background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%); }
-                .feature-card, .metric-card, .role-card { background: #1e293b; border-color: #334155; }
-                .feature-card h4, .feature-card p { color: #e2e8f0 !important; }
-            </style>
-        """, unsafe_allow_html=True)
-
-# Sidebar for information (always visible when on main dashboard)
-def show_sidebar():
-    with st.sidebar:
-        # University of St. Gallen logo
-        st.markdown("""
-        <div style="text-align: center; margin-bottom: 1rem; padding: 0.5rem;">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/7/73/University_of_St._Gallen_logo_english.png" alt="University of St. Gallen" style="height: 40px; width: auto;">
+        <div style="padding-top: 0.5rem;">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/7/73/University_of_St._Gallen_logo_english.png" alt="University of St. Gallen" style="height: 45px; width: auto;">
         </div>
         """, unsafe_allow_html=True)
-        
-        st.header("👤 Your Role")
-        # Allow changing role from sidebar
+    
+    with header_col2:
+        st.markdown(f"""
+        <div class="main-header" style="margin: 0; padding: 1rem 0; text-align: center;">
+            <h1 style="margin-bottom: 0.3rem;">Uber Eats Demand Forecast</h1>
+            <p style="margin: 0;">{role_emoji} Viewing as <strong>{role_name}</strong> • Week of {datetime.now().strftime('%B %d, %Y')}</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with header_col3:
+        # Role switcher dropdown
         role_options = [ROLE_RESTAURANT, ROLE_PLATFORM, ROLE_DRIVER]
-        current_index = role_options.index(st.session_state.user_type) if st.session_state.user_type in role_options else 0
-        new_user_type = st.radio(
+        role_labels = {"Restaurant Owner": ROLE_RESTAURANT, "Delivery Platform": ROLE_PLATFORM, "Delivery Driver": ROLE_DRIVER}
+        current_role = st.session_state.user_type
+        
+        new_role = st.selectbox(
             "Switch role:",
             options=role_options,
-            index=current_index,
-            key="sidebar_user_type"
+            index=role_options.index(current_role),
+            key="header_role_select",
+            label_visibility="collapsed"
         )
-        # Update if changed
-        if new_user_type != st.session_state.user_type:
-            st.session_state.user_type = new_user_type
+        
+        if new_role != current_role:
+            st.session_state.user_type = new_role
             st.rerun()
         
-        st.markdown("---")
-        
-        st.header("About")
-        st.markdown("""**Data**: Switzerland  
-**Weather**: Open-Meteo API  
-**Updated**: Weekly forecasts""")
-        
-        st.markdown("---")
-        
-        st.header("Settings")
-        dark_mode = st.toggle("Dark Mode", value=st.session_state.dark_mode, key="dark_mode_toggle")
-        if dark_mode != st.session_state.dark_mode:
-            st.session_state.dark_mode = dark_mode
-            st.rerun()
-        
-        st.markdown("---")
-        if st.button("Back to Welcome Screen"):
+        if st.button("Home", use_container_width=True, key="back_home_btn"):
             st.session_state.user_type_selected = False
             st.session_state.user_type = None
             st.rerun()
 
+# ============== 8. DATA LOADING ==============
 @st.cache_data
 def load_historical_data():
     """Load historical search data and calculate statistics"""
     try:
         url = "https://raw.githubusercontent.com/cedricly-git/BADS_Capstone_repo/main/Data/ubereats+time_related_vars.csv"
-        # Use requests to fetch data (handles SSL better on macOS)
+        # Fetch data from GitHub repository
         response = requests.get(url, timeout=10)
         response.raise_for_status()
         df = pd.read_csv(StringIO(response.text), engine='python')
@@ -567,7 +652,7 @@ def get_last_known_search_value():
     """Get the last known search value from CSV for initial lag features"""
     try:
         url = "https://raw.githubusercontent.com/cedricly-git/BADS_Capstone_repo/main/Data/ubereats+time_related_vars.csv"
-        # Use requests to fetch data (handles SSL better on macOS)
+        # Fetch data from GitHub repository
         response = requests.get(url, timeout=10)
         response.raise_for_status()
         df = pd.read_csv(StringIO(response.text), engine='python')
@@ -588,6 +673,7 @@ def get_last_known_search_value():
             'last_7days_ago_value': 2000.0
         }
 
+# ============== 9. WEATHER DATA ==============
 @st.cache_data
 def fetch_historical_weather(days=14):
     """Fetch historical weather for the last N days (with 5-day delay for archive API availability)"""
@@ -633,7 +719,7 @@ def fetch_historical_weather(days=14):
         # Try standard method first
         weather_df = pd.DataFrame(weather_data)
     except Exception as e:
-        # Fallback: build DataFrame column by column (most robust method)
+        # Fallback: build DataFrame column by column
         st.warning(f"DataFrame creation issue in historical weather, using column-by-column method: {e}")
         try:
             # Extract columns separately to avoid numpy array issues
@@ -711,7 +797,7 @@ def fetch_weather_forecast(days=7):
         # Try standard method first
         weather_df = pd.DataFrame(weather_data)
     except Exception as e:
-        # Fallback: build DataFrame column by column (most robust method)
+        # Fallback: build DataFrame column by column
         st.warning(f"DataFrame creation issue, using column-by-column method: {e}")
         try:
             # Extract columns separately to avoid numpy array issues
@@ -745,13 +831,14 @@ def fetch_weather_forecast(days=7):
     
     return weather_avg
 
+# ============== 10. FEATURE ENGINEERING ==============
 def create_temporal_features(df):
     """Create temporal features from Day column"""
     df = df.copy()
     df['dayofweek'] = df['Day'].dt.weekday
     df['month_num'] = df['Day'].dt.month
     df['is_weekend'] = (df['dayofweek'] >= 5).astype(int)
-    df['is_holiday'] = 0  # Simplified - could add holiday calendar
+    df['is_holiday'] = 0  # Holiday detection not implemented
     
     # Cyclical encoding
     df['dayofweek_sin'] = np.sin(2 * np.pi * df['dayofweek'] / 7)
@@ -841,6 +928,7 @@ def prepare_forecast_features(weather_forecast, historical_weather, last_search_
     
     return forecast_features, full_df
 
+# ============== 11. MODEL PREDICTION ==============
 def make_predictions(model, forecast_features, full_df, historical_len):
     """
     Make predictions iteratively, using previous predictions for search lag features.
@@ -1098,7 +1186,7 @@ def build_weather_adjustment_paragraphs(row):
     return platform_text, restaurant_text
 
 
-# Main app logic
+# ============== 12. MAIN APPLICATION LOGIC ==============
 def main():
     # Check if user has selected their role
     if not st.session_state.user_type_selected:
@@ -1107,7 +1195,6 @@ def main():
     
     # Show main dashboard
     show_main_dashboard()
-    show_sidebar()
     
     # Get user type from session state
     user_type = st.session_state.user_type
@@ -1379,7 +1466,7 @@ def main():
             </div>
             """, unsafe_allow_html=True)
     
-    # ============== QUICK ACTIONS - Role-specific summary ==============
+    # ============== QUICK ACTIONS ==============
     
     # Get best and worst days
     best_day = results_df.loc[results_df['Predicted_Searches'].idxmax()]
@@ -1562,6 +1649,12 @@ def main():
             today_row = today_data.iloc[0]
             today_pct = calc_pct_vs_avg(today_row['Predicted_Searches'], historical_stats['mean'])
             
+            # Check tomorrow's demand for smarter advice
+            tomorrow_pct = None
+            if not tomorrow_data.empty:
+                tmrw_row = tomorrow_data.iloc[0]
+                tomorrow_pct = calc_pct_vs_avg(tmrw_row['Predicted_Searches'], historical_stats['mean'])
+            
             # Simple traffic light decision based on demand percentage
             if today_pct > 15:
                 decision = "YES! High demand today"
@@ -1586,7 +1679,26 @@ def main():
                 decision_color = "#ef4444"
                 decision_bg = "#fee2e2"
                 earning_boost = f"{today_pct:+.0f}%"
-                advice = "Maybe take the day off? Tomorrow might be better."
+                # Smart advice based on whether tomorrow is actually better
+                if tomorrow_pct is not None and tomorrow_pct > today_pct:
+                    advice = "Maybe take the day off? Tomorrow looks better!"
+                elif tomorrow_pct is not None and tomorrow_pct <= today_pct:
+                    # Find the next better day in the week
+                    better_days = results_df[results_df['Day'] > today_row['Day']].copy()
+                    if not better_days.empty:
+                        better_days['pct'] = better_days['Predicted_Searches'].apply(
+                            lambda x: calc_pct_vs_avg(x, historical_stats['mean'])
+                        )
+                        best_upcoming = better_days.loc[better_days['pct'].idxmax()]
+                        best_pct = best_upcoming['pct']
+                        if best_pct > today_pct:
+                            advice = f"Slow day. {best_upcoming['Day'].strftime('%A')} looks better ({best_pct:+.0f}%)."
+                        else:
+                            advice = "Slow week ahead. Work if you need the hours."
+                    else:
+                        advice = "Slow day. Consider limiting your hours."
+                else:
+                    advice = "Slow day. Consider limiting your hours."
             
             # Weather impact (info only, not affecting earning prediction)
             weather_note = ""
@@ -1654,7 +1766,7 @@ def main():
         </div>
         """, unsafe_allow_html=True)
         
-        # ===== WEEKLY OVERVIEW FOR DRIVERS - SIMPLER =====
+        # ===== WEEKLY OVERVIEW FOR DRIVERS =====
         st.markdown("### Best Days This Week")
         
         # Best 3 days to work
@@ -1696,7 +1808,7 @@ def main():
     else:  # Delivery Driver
         tab1, tab2, tab3 = st.tabs(["Earnings Forecast", "Weather Prep", "Schedule Planner"])
     
-    # ============== TAB 1: FORECAST OVERVIEW ==============
+    # ============== 13. TAB 1: FORECAST OVERVIEW ==============
     with tab1:
         # Different headers based on role
         if user_type == ROLE_DRIVER:
@@ -1883,65 +1995,178 @@ def main():
                         else:
                             st.markdown(f"**Recommendation:** {category['rec_restaurant_base']}")
     
-    # ============== TAB 2: PLANNING TOOLS / WEATHER PREP ==============
+    # ============== 14. TAB 2: PLANNING TOOLS ==============
     with tab2:
         if user_type == ROLE_RESTAURANT:
             # INVENTORY PLANNER
             st.subheader("Inventory Planner")
             st.markdown("Plan your ingredient orders based on expected demand levels.")
             
+            # Toggle for detailed inventory view
+            if 'inventory_detailed_mode' not in st.session_state:
+                st.session_state.inventory_detailed_mode = False
+            
+            detailed_mode = st.toggle(
+                "Detailed Inventory (by category)", 
+                value=st.session_state.inventory_detailed_mode, 
+                key="inventory_toggle",
+                help="Switch to detailed mode to plan inventory by custom categories"
+            )
+            st.session_state.inventory_detailed_mode = detailed_mode
+            
             st.markdown("**Configure your baseline:**")
             inv_col1, inv_col2 = st.columns(2)
             with inv_col1:
                 baseline_covers = st.number_input("Average daily covers (normal day)", value=100, min_value=10, max_value=1000)
-                avg_items_per_order = st.number_input("Average items per order", value=2.5, min_value=1.0, max_value=10.0, step=0.5)
+                if not detailed_mode:
+                    avg_items_per_order = st.number_input("Average items per order", value=2.5, min_value=1.0, max_value=10.0, step=0.5)
             with inv_col2:
                 safety_buffer = st.slider("Safety buffer %", 0, 50, 15, help="Extra stock percentage to account for unexpected demand spikes or higher-than-forecasted orders. Higher buffer = less risk of running out, but more potential waste.")
             
             st.markdown("---")
-            st.markdown("**Recommended Order Quantities:**")
             
-            # Calculate order recommendations using continuous demand ratio
-            order_cols = st.columns(7)
-            total_weekly_items = 0
-            
-            for idx, (_, row) in enumerate(results_df.iterrows()):
-                # Use actual predicted searches to calculate continuous demand multiplier
-                pct_vs_avg = calc_pct_vs_avg(row['Predicted_Searches'], historical_stats['mean'])
-                # Convert percentage to multiplier (e.g., +20% -> 1.20, -10% -> 0.90)
-                demand_multiplier = 1 + (pct_vs_avg / 100)
+            if detailed_mode:
+                # DETAILED INVENTORY MODE - Custom categories
+                st.markdown("**Inventory Categories:**")
+                st.caption("Add categories for your inventory (e.g., Proteins, Vegetables, Sauces, etc.)")
                 
-                expected_covers = baseline_covers * demand_multiplier
-                expected_items = expected_covers * avg_items_per_order
-                with_buffer = expected_items * (1 + safety_buffer/100)
-                total_weekly_items += with_buffer
+                # Initialize inventory categories
+                if 'inventory_categories' not in st.session_state:
+                    st.session_state.inventory_categories = [
+                        {"name": "Proteins", "unit": "kg", "per_cover": 0.25},
+                        {"name": "Vegetables", "unit": "kg", "per_cover": 0.15},
+                        {"name": "Sauces", "unit": "L", "per_cover": 0.05}
+                    ]
                 
-                # Determine color based on demand level
-                if pct_vs_avg > 20:
-                    demand_color = '#ef4444'  # Red for very high
-                elif pct_vs_avg > 0:
-                    demand_color = '#f97316'  # Orange for above average
-                elif pct_vs_avg > -15:
-                    demand_color = '#22c55e'  # Green for normal
-                else:
-                    demand_color = '#3b82f6'  # Blue for low
+                # Column headers
+                header_col1, header_col2, header_col3, header_col4 = st.columns([3, 2, 2, 1])
+                with header_col1:
+                    st.markdown("**Category Name**")
+                with header_col2:
+                    st.markdown("**Unit**")
+                with header_col3:
+                    st.markdown("**Qty per Order**")
+                with header_col4:
+                    st.markdown("")
                 
-                with order_cols[idx]:
+                # Display existing categories
+                categories_to_remove = []
+                for i, cat in enumerate(st.session_state.inventory_categories):
+                    cat_col1, cat_col2, cat_col3, cat_col4 = st.columns([3, 2, 2, 1])
+                    with cat_col1:
+                        st.session_state.inventory_categories[i]["name"] = st.text_input(
+                            "Category", value=cat["name"], key=f"cat_name_{i}", label_visibility="collapsed"
+                        )
+                    with cat_col2:
+                        st.session_state.inventory_categories[i]["unit"] = st.selectbox(
+                            "Unit", ["kg", "L", "units", "portions", "packs"], 
+                            index=["kg", "L", "units", "portions", "packs"].index(cat["unit"]) if cat["unit"] in ["kg", "L", "units", "portions", "packs"] else 0,
+                            key=f"cat_unit_{i}", label_visibility="collapsed"
+                        )
+                    with cat_col3:
+                        st.session_state.inventory_categories[i]["per_cover"] = st.number_input(
+                            "Qty per Order", value=cat["per_cover"], min_value=0.01, max_value=10.0, step=0.01,
+                            key=f"cat_per_{i}", label_visibility="collapsed", help="Quantity of this ingredient needed per order (in selected unit)"
+                        )
+                    with cat_col4:
+                        if st.button("🗑️", key=f"remove_cat_{i}"):
+                            categories_to_remove.append(i)
+                
+                # Remove marked categories
+                for i in sorted(categories_to_remove, reverse=True):
+                    st.session_state.inventory_categories.pop(i)
+                
+                # Add new category button
+                if st.button("➕ Add Category", use_container_width=False):
+                    st.session_state.inventory_categories.append(
+                        {"name": f"Category {len(st.session_state.inventory_categories) + 1}", "unit": "kg", "per_cover": 0.1}
+                    )
+                    st.rerun()
+                
+                st.markdown("---")
+                st.markdown("**Recommended Order Quantities by Category:**")
+                
+                # Calculate for each category
+                for cat in st.session_state.inventory_categories:
+                    st.markdown(f"**{cat['name']}** ({cat['unit']})")
+                    order_cols = st.columns(7)
+                    total_weekly_cat = 0
+                    
+                    for idx, (_, row) in enumerate(results_df.iterrows()):
+                        pct_vs_avg = calc_pct_vs_avg(row['Predicted_Searches'], historical_stats['mean'])
+                        demand_multiplier = 1 + (pct_vs_avg / 100)
+                        
+                        expected_covers = baseline_covers * demand_multiplier
+                        expected_amount = expected_covers * cat["per_cover"]
+                        with_buffer = expected_amount * (1 + safety_buffer/100)
+                        total_weekly_cat += with_buffer
+                        
+                        if pct_vs_avg > 20:
+                            demand_color = '#ef4444'
+                        elif pct_vs_avg > 0:
+                            demand_color = '#f97316'
+                        elif pct_vs_avg > -15:
+                            demand_color = '#22c55e'
+                        else:
+                            demand_color = '#3b82f6'
+                        
+                        with order_cols[idx]:
+                            st.markdown(f"""
+                            <div style="background: #f8fafc; padding: 0.6rem; border-radius: 8px; text-align: center;">
+                                <div style="font-weight: bold; font-size: 0.75rem;">{row['Day'].strftime('%a')}</div>
+                                <div style="font-size: 1rem; font-weight: bold; color: #667eea;">{with_buffer:.1f}</div>
+                                <div style="font-size: 0.65rem; color: {demand_color};">{pct_vs_avg:+.0f}%</div>
+                            </div>
+                            """, unsafe_allow_html=True)
+                    
                     st.markdown(f"""
-                    <div style="background: #f8fafc; padding: 0.8rem; border-radius: 10px; text-align: center;">
-                        <div style="font-weight: bold; font-size: 0.85rem;">{row['Day'].strftime('%a')}</div>
-                        <div style="font-size: 1.2rem; font-weight: bold; color: #667eea;">{int(with_buffer)}</div>
-                        <div style="font-size: 0.7rem; color: #64748b;">items needed</div>
-                        <div style="font-size: 0.7rem; color: {demand_color};">{pct_vs_avg:+.0f}% demand</div>
+                    <div style="background: #e0e7ff; padding: 0.5rem 1rem; border-radius: 8px; margin-bottom: 1rem; display: flex; justify-content: space-between;">
+                        <span><strong>{cat['name']}</strong> Weekly Total:</span>
+                        <span><strong>{total_weekly_cat:.1f} {cat['unit']}</strong></span>
                     </div>
                     """, unsafe_allow_html=True)
             
-            st.markdown(f"""
-            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1.5rem; border-radius: 12px; margin-top: 1rem;">
-                <h4 style="color: white; margin: 0;">Weekly Total: {int(total_weekly_items):,} items</h4>
-                <p style="margin: 0.5rem 0 0 0; opacity: 0.9;">With {safety_buffer}% safety buffer included</p>
-            </div>
-            """, unsafe_allow_html=True)
+            else:
+                # SIMPLE MODE - Original behavior
+                st.markdown("**Recommended Order Quantities:**")
+                
+                order_cols = st.columns(7)
+                total_weekly_items = 0
+                
+                for idx, (_, row) in enumerate(results_df.iterrows()):
+                    pct_vs_avg = calc_pct_vs_avg(row['Predicted_Searches'], historical_stats['mean'])
+                    demand_multiplier = 1 + (pct_vs_avg / 100)
+                    
+                    expected_covers = baseline_covers * demand_multiplier
+                    expected_items = expected_covers * avg_items_per_order
+                    with_buffer = expected_items * (1 + safety_buffer/100)
+                    total_weekly_items += with_buffer
+                    
+                    if pct_vs_avg > 20:
+                        demand_color = '#ef4444'
+                    elif pct_vs_avg > 0:
+                        demand_color = '#f97316'
+                    elif pct_vs_avg > -15:
+                        demand_color = '#22c55e'
+                    else:
+                        demand_color = '#3b82f6'
+                    
+                    with order_cols[idx]:
+                        st.markdown(f"""
+                        <div style="background: #f8fafc; padding: 0.8rem; border-radius: 10px; text-align: center;">
+                            <div style="font-weight: bold; font-size: 0.85rem;">{row['Day'].strftime('%a')}</div>
+                            <div style="font-size: 1.2rem; font-weight: bold; color: #667eea;">{int(with_buffer)}</div>
+                            <div style="font-size: 0.7rem; color: #64748b;">items needed</div>
+                            <div style="font-size: 0.7rem; color: {demand_color};">{pct_vs_avg:+.0f}% demand</div>
+                        </div>
+                        """, unsafe_allow_html=True)
+                
+                st.markdown(f"""
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1.5rem; border-radius: 12px; margin-top: 1rem;">
+                    <h4 style="color: white; margin: 0;">Weekly Total: {int(total_weekly_items):,} items</h4>
+                    <p style="margin: 0.5rem 0 0 0; opacity: 0.9;">With {safety_buffer}% safety buffer included</p>
+                </div>
+                """, unsafe_allow_html=True)
         
         elif user_type == ROLE_DRIVER:
             # WEATHER PREP for Drivers
@@ -2083,18 +2308,17 @@ def main():
             </div>
             """, unsafe_allow_html=True)
     
-    # ============== TAB 3: COMMUNICATIONS / STAFF ==============
+    # ============== 15. TAB 3: STAFF / SCHEDULE / COMMUNICATIONS ==============
     with tab3:
         if user_type == ROLE_RESTAURANT:
             # STAFF SCHEDULER
             st.subheader("Staff Scheduler")
-            st.markdown("Plan your kitchen and service staff based on expected demand.")
+            st.markdown("Plan your kitchen staff based on expected order demand.")
             
             st.markdown("**Your staff configuration:**")
             staff_col1, staff_col2 = st.columns(2)
             with staff_col1:
                 baseline_kitchen = st.number_input("Baseline kitchen staff (normal day)", value=3, min_value=1, max_value=20)
-                baseline_service = st.number_input("Baseline service staff (normal day)", value=2, min_value=0, max_value=20)
             with staff_col2:
                 shift_length = st.number_input("Average shift length (hours)", value=6, min_value=4, max_value=12)
                 hourly_rate = st.number_input("Average hourly rate (CHF)", value=25, min_value=15, max_value=60)
@@ -2111,8 +2335,7 @@ def main():
                 staff_multiplier = max(0.7, min(1.5, 1 + (pct_vs_avg / 100)))
                 
                 rec_kitchen = max(1, int(baseline_kitchen * staff_multiplier))
-                rec_service = max(0, int(baseline_service * staff_multiplier))
-                day_cost = (rec_kitchen + rec_service) * shift_length * hourly_rate
+                day_cost = rec_kitchen * shift_length * hourly_rate
                 weekly_labor_cost += day_cost
                 
                 # Determine background color based on demand percentage
@@ -2132,8 +2355,7 @@ def main():
                         <span style="margin-left: 0.5rem; font-size: 0.8rem; color: #64748b;">({pct_vs_avg:+.0f}% vs avg)</span>
                     </div>
                     <div style="text-align: right;">
-                        <span style="margin-right: 1rem;">Kitchen: <strong>{rec_kitchen}</strong></span>
-                        <span>Service: <strong>{rec_service}</strong></span>
+                        <span style="margin-right: 1rem;">Kitchen Staff: <strong>{rec_kitchen}</strong></span>
                         <span style="margin-left: 1rem; color: #64748b;">~CHF {int(day_cost)}</span>
                     </div>
                 </div>
@@ -2146,7 +2368,7 @@ def main():
             </div>
             """, unsafe_allow_html=True)
     
-    # ============== TAB 4: MARKETING TOOLS (Restaurant only) ==============
+    # ============== 16. TAB 4: MARKETING TOOLS ==============
     if user_type == ROLE_RESTAURANT:
         with tab4:
             st.subheader("Marketing Tools")
@@ -2235,6 +2457,52 @@ def main():
                         st.text_area("Copy this message:", discount_msg, height=120, key="discount_social_msg")
                     with col2:
                         st.download_button("Download", discount_msg, "discount_promo.txt", use_container_width=True)
+                    
+                    # Email sending section
+                    st.markdown("---")
+                    st.markdown("**Send via Email**")
+                    discount_email = st.text_input(
+                        "Enter recipient email:",
+                        placeholder="marketing@yourrestaurant.com",
+                        key="discount_email_input"
+                    )
+                    
+                    if st.button("Send Email", use_container_width=True, type="primary", key="send_discount_email_btn"):
+                        if not discount_email:
+                            st.error("Please enter an email address.")
+                        elif "@" not in discount_email:
+                            st.error("Please enter a valid email address.")
+                        else:
+                            with st.spinner("Sending email..."):
+                                try:
+                                    RESEND_API_KEY = "re_Crn4XSXd_GD4WfLvaDU8opd8wVLf3KxoR"
+                                    
+                                    response = requests.post(
+                                        "https://api.resend.com/emails",
+                                        headers={
+                                            "Authorization": f"Bearer {RESEND_API_KEY}",
+                                            "Content-Type": "application/json"
+                                        },
+                                        json={
+                                            "from": "Uber Eats Forecast <onboarding@resend.dev>",
+                                            "to": [discount_email],
+                                            "subject": "This Week's Discount Specials - Ready to Post!",
+                                            "text": discount_msg
+                                        },
+                                        timeout=10
+                                    )
+                                    
+                                    if response.status_code == 200:
+                                        st.success(f"Email sent successfully to **{discount_email}**!")
+                                        st.balloons()
+                                    else:
+                                        error_msg = response.json().get('message', 'Unknown error')
+                                        st.error(f"Failed to send email: {error_msg}")
+                                        
+                                except requests.exceptions.Timeout:
+                                    st.error("Request timed out. Please try again.")
+                                except Exception as e:
+                                    st.error(f"Error: {str(e)}")
             
             st.markdown("<br>", unsafe_allow_html=True)
             
@@ -2423,14 +2691,60 @@ def main():
                     st.text_area("Copy this message:", promo_msg, height=120, key="promo_social_msg")
                 with col2:
                     st.download_button("Download", promo_msg, "weekly_promo.txt", use_container_width=True)
+                
+                # Email sending section
+                st.markdown("---")
+                st.markdown("**Send via Email**")
+                promo_email = st.text_input(
+                    "Enter recipient email:",
+                    placeholder="marketing@yourrestaurant.com",
+                    key="promo_email_input"
+                )
+                
+                if st.button("Send Email", use_container_width=True, type="primary", key="send_promo_email_btn"):
+                    if not promo_email:
+                        st.error("Please enter an email address.")
+                    elif "@" not in promo_email:
+                        st.error("Please enter a valid email address.")
+                    else:
+                        with st.spinner("Sending email..."):
+                            try:
+                                RESEND_API_KEY = "re_Crn4XSXd_GD4WfLvaDU8opd8wVLf3KxoR"
+                                
+                                response = requests.post(
+                                    "https://api.resend.com/emails",
+                                    headers={
+                                        "Authorization": f"Bearer {RESEND_API_KEY}",
+                                        "Content-Type": "application/json"
+                                    },
+                                    json={
+                                        "from": "Uber Eats Forecast <onboarding@resend.dev>",
+                                        "to": [promo_email],
+                                        "subject": "This Week's Promo Specials - Ready to Post!",
+                                        "text": promo_msg
+                                    },
+                                    timeout=10
+                                )
+                                
+                                if response.status_code == 200:
+                                    st.success(f"Email sent successfully to **{promo_email}**!")
+                                    st.balloons()
+                                else:
+                                    error_msg = response.json().get('message', 'Unknown error')
+                                    st.error(f"Failed to send email: {error_msg}")
+                                    
+                            except requests.exceptions.Timeout:
+                                st.error("Request timed out. Please try again.")
+                            except Exception as e:
+                                st.error(f"Error: {str(e)}")
             
             # Summary tips
             st.info("**Tips:** Post 24-48h before slow days • Use Instagram Stories for urgency • Track what works best")
     
-    # Back to tab3 for Delivery Driver
+    # Tab 3 content for Delivery Driver
     with tab3:
         if user_type == ROLE_DRIVER:
-            # SCHEDULE PLANNER for Drivers - SIMPLIFIED
+            # SCHEDULE PLANNER
             st.subheader("Your Optimal Week")
             st.markdown("Here's how to maximize earnings based on demand forecasts.")
             
@@ -2698,7 +3012,7 @@ Peak: {top_day['Day'].strftime('%A')} (+{peak_uplift}%)
                         except Exception as e:
                             st.error(f"Error: {str(e)}")
 
-    # ============== FOOTER SECTION ==============
+    # ============== 17. FOOTER SECTION ==============
     st.markdown("---")
     
     # Role-specific tips and download
