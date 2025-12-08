@@ -10,6 +10,9 @@
 This project aims to help restaurants and food delivery platforms (like UberEats) optimize their operations by predicting daily demand. 
 
 In the absence of proprietary order data, we engineered a novel approach using **Google Search Volume** as a proxy for consumer demand. By analyzing search trends alongside external factors like weather and holidays, our Streamlit application provides actionable insights for staffing, inventory management, and order preparation.
+<img width="1496" height="836" alt="app_main_screen" src="https://github.com/user-attachments/assets/3e8538ab-c62e-49a2-894f-b0804a9d37dc" />
+<img width="1495" height="879" alt="app_option_screen" src="https://github.com/user-attachments/assets/b5103ffa-17eb-42d6-ae8c-d94a5ed26582" />
+
 
 ## 🎯 Business Goal
 The primary objective is to smooth the volatility of food delivery logistics. By predicting demand spikes, our tool helps stakeholders:
