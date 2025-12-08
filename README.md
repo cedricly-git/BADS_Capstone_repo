@@ -76,9 +76,10 @@ The application is built with Streamlit and requires a local Python environment.
     The app should open automatically in your default browser at `http://localhost:8501`.
 
 ## 👥 Contributors
-* [Your Name]
-* [Teammate Name]
-* [Teammate Name]
+* Leonardo Gonnelli
+* Gaspard Simonetta
+* Barnabé Cusnir
+* Cédric Ly
 
 ---
 *Created for the Business Analytics and Data Science Capstone Class.*
