@@ -1,4 +1,4 @@
-# 🛵 BADS Capstone: Delivery Demand Predictor
+# BADS Capstone: Delivery Demand Predictor
 
 ### Optimizing Food Delivery Operations using Google Search Trends
 
