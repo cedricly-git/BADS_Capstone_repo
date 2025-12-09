@@ -488,7 +488,7 @@ def show_landing_page():
             <p>Optimize inventory, staffing, and prep schedules</p>
             <br>
             <div style="color: #667eea; font-weight: 600;">Features:</div>
-            <p style="font-size: 0.85rem;">✓ Inventory planner<br>✓ Staff scheduler<br>✓ Demand insights</p>
+            <p style="font-size: 0.85rem;">✓ Inventory planner<br>✓ Staff scheduler<br>✓ Marketing tools</p>
         </div>
         """, unsafe_allow_html=True)
         if st.button("🍽️ I'm a Restaurant", use_container_width=True, type="primary", key="btn_restaurant"):
@@ -504,7 +504,7 @@ def show_landing_page():
             <p>Plan rider allocation and driver communications</p>
             <br>
             <div style="color: #667eea; font-weight: 600;">Features:</div>
-            <p style="font-size: 0.85rem;">✓ Rider calculator<br>✓ Driver messaging<br>✓ Fleet planning</p>
+            <p style="font-size: 0.85rem;">✓ Rider calculator<br>✓ Driver comms<br>✓ Demand forecast</p>
         </div>
         """, unsafe_allow_html=True)
         if st.button("🚚 I'm a Delivery Platform", use_container_width=True, type="primary", key="btn_platform"):
@@ -520,7 +520,7 @@ def show_landing_page():
             <p>Find the best days to work and maximize earnings</p>
             <br>
             <div style="color: #667eea; font-weight: 600;">Features:</div>
-            <p style="font-size: 0.85rem;">✓ Earnings forecast<br>✓ Weather prep<br>✓ Schedule optimizer</p>
+            <p style="font-size: 0.85rem;">✓ Earnings forecast<br>✓ Weather prep<br>✓ Schedule planner</p>
         </div>
         """, unsafe_allow_html=True)
         if st.button("🚴 I'm a Delivery Driver", use_container_width=True, type="primary", key="btn_driver"):
@@ -2865,7 +2865,7 @@ def main():
             
             st.markdown("")
         
-        else:
+        elif user_type == ROLE_PLATFORM:
             # DRIVER COMMUNICATION for Platforms
             
             # Get top 3 busiest days
