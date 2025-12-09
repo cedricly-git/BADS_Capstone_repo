@@ -6,6 +6,13 @@
 ![Streamlit](https://img.shields.io/badge/Streamlit-App-FF4B4B)
 ![Status](https://img.shields.io/badge/Status-Completed-success)
 
+## A note from the team
+About the Project This repository represents a class captsone project we collaborated on as a group of four students. The aim of this project is to apply the knowledge that we have acquired in classes (data science, data analytics) into a business perspective.
+
+As we began to brainstorm this solution, we were determined to take an unconventional approach with respect to our data. Instead of using some cleaned, existing data, we wanted to be able to experience the entire lifecycle of a data project. We decided to create our own dataset from scratch.
+
+We knew going in that this would be a significant challenge-introducing noise, collection hurdles, and complexity that standard datasets often abstract away. But we think navigating the "messy" side of data generation was an important part of understanding what our solution was really capable-and incapable-of. This project represents not just code, but our journey in navigating those challenges together.
+
 ## Executive Summary
 This project aims to help restaurants and food delivery platforms (like UberEats) optimize their operations by predicting daily demand. 
 
