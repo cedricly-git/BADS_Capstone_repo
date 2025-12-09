@@ -48,6 +48,8 @@ We experimented with multiple algorithms, narrowing our focus to:
 * **CatBoost Regressor:** To capture non-linear relationships and handle categorical features effectively.
 
 Both models yielded comparable results, and the final application allows users to interact with the predictions derived from these experiments.
+<img width="1489" height="989" alt="image" src="https://github.com/user-attachments/assets/2b4cf895-c123-4a22-b2c1-795a9a77bce2" />
+<img width="1490" height="590" alt="image" src="https://github.com/user-attachments/assets/a9bda3c3-c546-4b3a-b2c9-1a570cdebed7" />
 
 ## 📉 Results & Limitations
 Our final model achieved an $R^2$ of **0.365**.
@@ -57,7 +59,8 @@ While this metric indicates that our model explains approximately 36.5% of the v
 * **The "Proxy Gap":** The moderate score highlights the distinction between *intent* (Google Search) and *action* (placing an order). Many users open the UberEats app directly without searching on Google, which is data we cannot access publicly.
 * **Key Drivers Identified:** Despite the predictive limitations, the model successfully isolated statistically significant drivers. We confirmed that **precipitation**, **low temperatures**, and **holidays** have a measurable positive impact on interest.
 * **Business Value:** Even with an $R^2$ of 0.365, the directional insights allow us to provide solid, logic-based recommendations for staffing up during specific weather events and calendar days.
-<img width="989" height="790" alt="image" src="https://github.com/user-attachments/assets/d6fca7d5-8b9f-4769-b7b4-2c43bc3c9fe6" />
+<img width="1590" height="590" alt="image" src="https://github.com/user-attachments/assets/c47a6220-1999-40a8-8a57-be868314bf69" />
+
 
 **Future Improvements:**
 To bridge the gap in unexplained variance, future iterations would benefit from:
