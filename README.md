@@ -62,6 +62,7 @@ While this metric indicates that our model explains approximately 36.5% of the v
 <img width="1590" height="590" alt="image" src="https://github.com/user-attachments/assets/c47a6220-1999-40a8-8a57-be868314bf69" />
 
 
+
 **Future Improvements:**
 To bridge the gap in unexplained variance, future iterations would benefit from:
 1.  **Internal App Data:** Access to actual order logs rather than search trends.
