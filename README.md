@@ -57,6 +57,7 @@ While this metric indicates that our model explains approximately 36.5% of the v
 * **The "Proxy Gap":** The moderate score highlights the distinction between *intent* (Google Search) and *action* (placing an order). Many users open the UberEats app directly without searching on Google, which is data we cannot access publicly.
 * **Key Drivers Identified:** Despite the predictive limitations, the model successfully isolated statistically significant drivers. We confirmed that **precipitation**, **low temperatures**, and **holidays** have a measurable positive impact on interest.
 * **Business Value:** Even with an $R^2$ of 0.365, the directional insights allow us to provide solid, logic-based recommendations for staffing up during specific weather events and calendar days.
+<img width="989" height="790" alt="image" src="https://github.com/user-attachments/assets/d6fca7d5-8b9f-4769-b7b4-2c43bc3c9fe6" />
 
 **Future Improvements:**
 To bridge the gap in unexplained variance, future iterations would benefit from:
