@@ -22,9 +22,9 @@ The primary objective is to smooth the volatility of food delivery logistics. By
 * **Improve Service:** Decrease wait times during high-volume periods.
 
 ## 📊 Data Engineering & Sources
-One of the core challenges—and major learning outcomes—of this project was the construction of a custom dataset from scratch. Instead of using a pre-made Kaggle dataset, we performed extensive **Data Engineering**:
+One of the core challenges, and major learning outcomes of this project was the construction of a custom dataset from scratch. Instead of using a pre-made Kaggle dataset, we performed extensive **Data Engineering**:
 
-1.  **Demand Proxy (Target Variable):** * We scraped daily search data for 'UberEats' and related delivery keywords over the past 2 years, specifically gathering the relative search volume from Google Trends and the absolute search volume (which is granularized and thus not representative of daily variations) from Semrush.
+1.  **Demand Proxy (Target Variable):** We scraped daily search data for 'UberEats' and related delivery keywords over the past 2 years, specifically gathering the relative search volume from Google Trends and the absolute search volume (which is granularized and thus not representative of daily variations) from Semrush.
 2.  **External Features:**
     * **Weather API:** Integrated precipitation and temperature data to analyze the "rainy day delivery" hypothesis.
     * **Temporal Features:** Engineered features for day-of-the-week, seasonality, and public holidays.
