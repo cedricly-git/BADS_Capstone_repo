@@ -50,13 +50,18 @@ We experimented with multiple algorithms, narrowing our focus to:
 Both models yielded comparable results, and the final application allows users to interact with the predictions derived from these experiments.
 
 ## 📉 Results & Limitations
-Our final model achieved an $R^2$ of **0.365**. **!!! Check!!**
+Our final model achieved an $R^2$ of **0.365**.
 
-While this indicates a moderate correlation, it highlights the challenges of using search volume as a direct proxy for actual orders. 
-* **Interpretation:** We successfully identified key drivers (e.g., weekends and bad weather positively impact search volume), but roughly 58% **!!! CHECK !!!** of the variance remains unexplained. 
-* **Future Work:** Access to real transactional data or marketing spend data would likely significantly improve the model's predictive power.
+While this metric indicates that our model explains approximately 36.5% of the variance in search volume, it provides critical learning points regarding the use of proxy data in business analytics:
 
-Despite the metric, the project successfully demonstrates the end-to-end data science lifecycle, from scraping to deployment.
+* **The "Proxy Gap":** The moderate score highlights the distinction between *intent* (Google Search) and *action* (placing an order). Many users open the UberEats app directly without searching on Google, which is data we cannot access publicly.
+* **Key Drivers Identified:** Despite the predictive limitations, the model successfully isolated statistically significant drivers. We confirmed that **precipitation**, **low temperatures**, and **holidays** have a measurable positive impact on interest.
+* **Business Value:** Even with an $R^2$ of 0.365, the directional insights allow us to provide solid, logic-based recommendations for staffing up during specific weather events and calendar days.
+
+**Future Improvements:**
+To bridge the gap in unexplained variance, future iterations would benefit from:
+1.  **Internal App Data:** Access to actual order logs rather than search trends.
+2.  **Marketing Data:** Incorporating ad spend and push notification schedules, which likely drive the remaining "unexplained" spikes in demand.
 
 ## 🚀 How to Run the App
 The application is built with Streamlit and requires a local Python environment.
