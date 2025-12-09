@@ -50,7 +50,7 @@ We experimented with multiple algorithms, narrowing our focus to:
 Both models yielded comparable results, and the final application allows users to interact with the predictions derived from these experiments.
 
 ## 📉 Results & Limitations
-Our final model achieved an $R^2$ of **0.42**. **!!! Check!!**
+Our final model achieved an $R^2$ of **0.365**. **!!! Check!!**
 
 While this indicates a moderate correlation, it highlights the challenges of using search volume as a direct proxy for actual orders. 
 * **Interpretation:** We successfully identified key drivers (e.g., weekends and bad weather positively impact search volume), but roughly 58% **!!! CHECK !!!** of the variance remains unexplained. 
