@@ -6,7 +6,7 @@
 ![Streamlit](https://img.shields.io/badge/Streamlit-App-FF4B4B)
 ![Status](https://img.shields.io/badge/Status-Completed-success)
 
-## 📌 Executive Summary
+## Executive Summary
 This project aims to help restaurants and food delivery platforms (like UberEats) optimize their operations by predicting daily demand. 
 
 In the absence of proprietary order data, we engineered a novel approach using **Google Search Volume** as a proxy for consumer demand. By analyzing search trends alongside external factors like weather and holidays, our Streamlit application provides actionable insights for staffing, inventory management, and order preparation.
@@ -15,13 +15,13 @@ In the absence of proprietary order data, we engineered a novel approach using *
 <img width="1495" height="879" alt="app_option_screen" src="https://github.com/user-attachments/assets/b5103ffa-17eb-42d6-ae8c-d94a5ed26582" />
 
 
-## 🎯 Business Goal
+## Business Goal
 The primary objective is to smooth the volatility of food delivery logistics. By predicting demand spikes, our tool helps stakeholders:
 * **Optimize Staffing:** Schedule couriers and kitchen staff efficiently during predicted peaks.
 * **Manage Stock:** Reduce food waste by anticipating lower-demand days.
 * **Improve Service:** Decrease wait times during high-volume periods.
 
-## 📊 Data Engineering & Sources
+## Data Engineering & Sources
 One of the core challenges, and major learning outcomes of this project was the construction of a custom dataset from scratch. Instead of using a pre-made Kaggle dataset, we performed extensive **Data Engineering**:
 
 1.  **Demand Proxy (Target Variable):** We scraped daily search data for 'UberEats' and related delivery keywords over the past 2 years, specifically gathering the relative search volume from Google Trends and the absolute search volume (which is granularized and thus not representative of daily variations) from Semrush.
@@ -31,7 +31,7 @@ One of the core challenges, and major learning outcomes of this project was the 
 
 *Note: Building this pipeline was complex. Aligning disparate time-series data (weather vs. search trends) required significant cleaning and synchronization.*
 
-## ⚙️ Methodology & Tech Stack
+## Methodology & Tech Stack
 We approached this as a regression problem, aiming to predict the volume of search traffic.
 
 ### Tech Stack
@@ -51,7 +51,7 @@ Both models yielded comparable results, and the final application allows users t
 <img width="1489" height="989" alt="image" src="https://github.com/user-attachments/assets/2b4cf895-c123-4a22-b2c1-795a9a77bce2" />
 <img width="1490" height="590" alt="image" src="https://github.com/user-attachments/assets/a9bda3c3-c546-4b3a-b2c9-1a570cdebed7" />
 
-## 📉 Results & Limitations
+## Results & Limitations
 Our final model achieved an $R^2$ of **0.365**.
 
 While this metric indicates that our model explains approximately 36.5% of the variance in search volume, it provides critical learning points regarding the use of proxy data in business analytics:
@@ -68,7 +68,7 @@ To bridge the gap in unexplained variance, future iterations would benefit from:
 1.  **Internal App Data:** Access to actual order logs rather than search trends.
 2.  **Marketing Data:** Incorporating ad spend and push notification schedules, which likely drive the remaining "unexplained" spikes in demand.
 
-## 🚀 How to Run the App
+## How to Run the App
 The application is built with Streamlit and requires a local Python environment.
 
 1.  **Clone the repository**
@@ -89,7 +89,7 @@ The application is built with Streamlit and requires a local Python environment.
     ```
     The app should open automatically in your default browser at `http://localhost:8501`.
 
-## 👥 Contributors
+## Contributors
 * Leonardo Gonnelli
 * Gaspard Simonetta
 * Barnabé Cusnir
