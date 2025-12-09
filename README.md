@@ -24,7 +24,7 @@ The primary objective is to smooth the volatility of food delivery logistics. By
 ## 📊 Data Engineering & Sources
 One of the core challenges—and major learning outcomes—of this project was the construction of a custom dataset from scratch. Instead of using a pre-made Kaggle dataset, we performed extensive **Data Engineering**:
 
-1.  **Demand Proxy (Target Variable):** * Scraped daily Google Trends data for "UberEats" and related delivery keywords over the past 2 years.
+1.  **Demand Proxy (Target Variable):** * We scraped daily search data for 'UberEats' and related delivery keywords over the past 2 years, specifically gathering the relative search volume from Google Trends and the absolute search volume (which is granularized and thus not representative of daily variations) from Semrush.
 2.  **External Features:**
     * **Weather API:** Integrated precipitation and temperature data to analyze the "rainy day delivery" hypothesis.
     * **Temporal Features:** Engineered features for day-of-the-week, seasonality, and public holidays.
@@ -38,7 +38,7 @@ We approached this as a regression problem, aiming to predict the volume of sear
 * **Language:** Python
 * **Data Manipulation:** Pandas, NumPy
 * **Scraping/APIs:** Requests, PyTrends (or specific scraping library used)
-* **Modeling:** Scikit-Learn, CatBoost
+* **Modeling:** Scikit-Learn, LinearRegression, CatBoost
 * **Visualization:** Plotly
 * **App Framework:** Streamlit
 
@@ -50,10 +50,10 @@ We experimented with multiple algorithms, narrowing our focus to:
 Both models yielded comparable results, and the final application allows users to interact with the predictions derived from these experiments.
 
 ## 📉 Results & Limitations
-Our final model achieved an $R^2$ of **0.42**. 
+Our final model achieved an $R^2$ of **0.42**. **!!! Check!!**
 
 While this indicates a moderate correlation, it highlights the challenges of using search volume as a direct proxy for actual orders. 
-* **Interpretation:** We successfully identified key drivers (e.g., weekends and bad weather positively impact search volume), but roughly 58% of the variance remains unexplained. 
+* **Interpretation:** We successfully identified key drivers (e.g., weekends and bad weather positively impact search volume), but roughly 58% **!!! CHECK !!!** of the variance remains unexplained. 
 * **Future Work:** Access to real transactional data or marketing spend data would likely significantly improve the model's predictive power.
 
 Despite the metric, the project successfully demonstrates the end-to-end data science lifecycle, from scraping to deployment.
