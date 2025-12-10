@@ -79,22 +79,30 @@ To bridge the gap in unexplained variance, future iterations would benefit from:
 The application is built with Streamlit and requires a local Python environment.
 
 1.  **Clone the repository**
-    ```bash
+    ```
     git clone [https://github.com/yourusername/BADS_Capstone_repo.git](https://github.com/yourusername/BADS_Capstone_repo.git)
     cd BADS_Capstone_repo
     ```
+    cd path/to/file/BAandDA_Group_1
 
 2.  **Install requirements**
     Make sure you have Python installed. Then run:
-    ```bash
+    ```
     pip install -r requirements.txt
     ```
 
 3.  **Run the application**
-    ```bash
+    ```
     streamlit run app.py
     ```
     The app should open automatically in your default browser at `http://localhost:8501`.
+
+## Test app
+In addition to the regular app, a test app is also available under the name of "test.py" this app allows one to test the app under different scenarios (such as high or low demand, rainy or sunny...) to see how it behaves. The choice of scenario can be made directly in the app. 
+To run it, do the same as for the main app but in the lest step, run instead: 
+```
+streamlit run app.py
+```
 
 ## Contributors
 * Leonardo Gonnelli
