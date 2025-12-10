@@ -83,7 +83,6 @@ The application is built with Streamlit and requires a local Python environment.
     git clone https://github.com/cedricly-git/BADS_Capstone_repo.git
     cd BADS_Capstone_repo
     ```
-    cd path/to/file/BAandDA_Group_1
 
 2.  **Install requirements**
     Make sure you have Python installed. Then run:
