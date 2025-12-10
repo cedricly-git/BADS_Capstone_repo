@@ -80,7 +80,7 @@ The application is built with Streamlit and requires a local Python environment.
 
 1.  **Clone the repository**
     ```
-    git clone [https://github.com/yourusername/BADS_Capstone_repo.git](https://github.com/yourusername/BADS_Capstone_repo.git)
+    git clone [https://github.com/yourusername/BADS_Capstone_repo.git](https://github.com/cedricly/BADS_Capstone_repo.git)
     cd BADS_Capstone_repo
     ```
     cd path/to/file/BAandDA_Group_1
